@@ -1,0 +1,208 @@
+$Output_Log = "E:\AMS\eNIRS_Deployment\Outlog.txt"
+#eNIRS Variables
+$NWADeployAppeNIRS = "e:\ENIRS\Deploy\NWA*\DeployApp.log"
+$ERFDeployAppeNIRS = "e:\ENIRS\Deploy\ERF*\DeployApp.log"
+$ENODeployAppeNIRS = "e:\ENIRS\Deploy\ENO*\DeployApp.log"
+$EnvironmenteNIRS = "e:\ENIRS\Deploy\Environment.config"
+#eNIRS2 Variables
+$NWADeployAppeNIRS2 = "e:\ENIRS2\Deploy\NWA*\DeployApp.log"
+$ERFDeployAppeNIRS2 = "e:\ENIRS2\Deploy\ERF*\DeployApp.log"
+$ENODeployAppeNIRS2 = "e:\ENIRS2\Deploy\ENO*\DeployApp.log"
+$EnvironmenteNIRS2 = "e:\ENIRS2\Deploy\Environment.config"
+ 
+$DeleteFiles = Read-Host 'Do you want to Delete the Existing DeployApp Files for eNIRS / eNIRS2 (y/n)'
+ 
+If ($DeleteFiles -eq "y"){
+    rm $NWADeployAppeNIRS
+    rm $ERFDeployAppeNIRS
+    rm $ENODeployAppeNIRS
+    rm $NWADeployAppeNIRS2
+    rm $ERFDeployAppeNIRS2
+    rm $ENODeployAppeNIRS2
+    rm $Output_Log
+    write-host "Files Deleted" -ForegroundColor Green
+}
+ElseIf ($DeleteFiles -eq "n"){
+    write-host "No Files Deleted" -ForegroundColor Green
+}
+Else {
+    write-host "Invalid Option. Exiting Script" -ForegroundColor Red
+    exit
+}
+ 
+cd e:\ENIRS\Deploy
+$EnvironmenteNIRS_Check = Get-Content $EnvironmenteNIRS | select-string -pattern "<WebSite>ENIRS</WebSite>", "<ApplicationPoolName>ENIRS</ApplicationPoolName>", "<WebSitePort>XX</WebSitePort>", "<Value>Sanitised</Value>", "<Value>Sanitised</Value>"
+ 
+write-host "eNIRS Environment File"
+echo $EnvironmenteNIRS_Check
+ 
+If ($EnvironmenteNIRS_Check.Length -gt 4){
+    write-host "Environment File is correct" -ForegroundColor Green
+    }
+ElseIf ($EnvironmenteNIRS_Check.Length -lt 5){
+    write-host "Failure - Error in Environment File" -ForegroundColor Red
+    exit
+}   
+ 
+$EnvCheck = Read-Host 'Do you want to continue (y/n)'
+ 
+If ($EnvCheck -eq "y"){
+ 
+write-host 
+"ENIRS NWA Check"
+ 
+cd e:\ENIRS\Deploy\NWA*\
+./eNirs.Net.Deploy
+ 
+Add-Content $Output_Log "NWA eNIRS" 
+Get-Content $NWADeployAppeNIRS | select-string "Deploy : 38 out of 38 tasks completed successfully" | Add-Content $Output_Log 
+ 
+$ContentNWAeNIRS = Get-Content $NWADeployAppeNIRS | select-string "Deploy : 38 out of 38 tasks completed successfully" -Context 1
+ 
+If ($ContentNWAeNIRS.Line.Length -gt 0){
+    write-host "Success - NWA Count Matches Expected Results" -ForegroundColor Green
+    }
+ElseIf ($ContentNWAeNIRS.Line.Length -lt 1){
+    write-host "Failure - NWA Count doesn't match. Please Review" -ForegroundColor Red
+    exit
+}
+ 
+write-host 
+"ENIRS ERF Check"
+    
+cd e:\ENIRS\Deploy\ERF*\
+./eNirs.Net.Deploy
+ 
+Add-Content $Output_Log "ERF eNIRS" 
+Get-Content $ERFDeployAppeNIRS | select-string "Deploy : 20 out of 20 tasks completed successfully" | Add-Content $Output_Log  
+ 
+$ContentERFeNIRS = Get-Content $ERFDeployAppeNIRS  | select-string "Deploy : 20 out of 20 tasks completed successfully" -Context 1
+ 
+If ($ContentERFeNIRS.Line.Length -gt 0){
+    write-host "Success - ERF Count Matches Expected Results" -ForegroundColor Green
+    }
+ElseIf ($ContentERFeNIRS.Line.Length -lt 1){
+    write-host "Failure - ERF Count doesn't match. Please Review" -ForegroundColor Red
+    exit 
+}
+ 
+write-host 
+"ENIRS ENO Check"
+ 
+cd e:\ENIRS\Deploy\ENO*\
+./eNirs.Net.Deploy
+ 
+Add-Content $Output_Log "ENO eNIRS" 
+Get-Content $ENODeployAppeNIRS | select-string "Deploy : 20 out of 20 tasks completed successfully" | Add-Content $Output_Log  
+ 
+$ContentENOeNIRS = Get-Content $ENODeployAppeNIRS | select-string "Deploy : 20 out of 20 tasks completed successfully" -Context 1
+ 
+If ($ContentENOeNIRS.Line.Length -gt 0){
+    write-host "Success - ENO Count Matches Expected Results" -ForegroundColor Green
+    }
+ElseIf ($ContentENOeNIRS.Line.Length -lt 1){
+    write-host "Failure - ENO Count doesn't match. Please Review" -ForegroundColor Red
+    exit 
+}
+}
+ElseIf ($EnvCheck -eq "n"){
+    write-host "Script Stopped" -ForegroundColor Red
+    exit 
+}
+Else {
+    write-host "Invalid Option. Exiting Script" -ForegroundColor Red
+    exit
+}
+ 
+#ENIRS2 Scripts and Logs
+ 
+cd e:\ENIRS2\Deploy
+$EnvironmenteNIRS_Check = Get-Content $EnvironmenteNIRS | select-string -pattern "<WebSite>ENIRS</WebSite>", "<ApplicationPoolName>ENIRS</ApplicationPoolName>", "<WebSitePort>XX</WebSitePort>", "<Value>Sanitised</Value>", "<Value>Sanitised</Value>"
+ 
+write-host 
+"eNIRS Environment File"
+ 
+echo $EnvironmenteNIRS2_Check
+ 
+If ($EnvironmenteNIRS2_Check.Length -gt 4){
+    write-host "Environment File is correct" -ForegroundColor Green
+    }
+ElseIf ($EnvironmenteNIRS2_Check.Length -lt 5){
+    write-host "Failure - Error in Environment File" -ForegroundColor Red
+    exit
+}   
+ 
+$EnvCheck2 = Read-Host 'Do you want to continue (y/n)'
+ 
+If ($EnvCheck2 -eq "y"){
+ 
+write-host 
+"ENIRS2 NWA Check"
+ 
+cd e:\ENIRS2\Deploy\NWA*\
+./eNirs.Net.Deploy
+ 
+Add-Content $Output_Log "NWA eNIRS2" 
+Get-Content $NWADeployAppeNIRS2 | select-string "Deploy : 38 out of 38 tasks completed successfully" | Add-Content $Output_Log 
+ 
+$ContentNWAeNIRS2 = Get-Content $NWADeployAppeNIRS2 | select-string "Deploy : 38 out of 38 tasks completed successfully" -Context 1
+ 
+If ($ContentNWAeNIRS2.Line.Length -gt 0){
+    write-host "Success - NWA Count Matches Expected Results" -ForegroundColor Green
+    }
+ElseIf ($ContentNWAeNIRS2.Line.Length -lt 1){
+    write-host "Failure - NWA Count doesn't match. Please Review" -ForegroundColor Red
+    exit
+}
+    
+write-host 
+"ENIRS2 ERF Check"    
+    
+cd e:\ENIRS2\Deploy\ERF*\
+./eNirs.Net.Deploy
+ 
+Add-Content $Output_Log "ERF eNIRS2" 
+Get-Content $ERFDeployAppeNIRS2 | select-string "Deploy : 20 out of 20 tasks completed successfully" | Add-Content $Output_Log  
+ 
+$ContentERFeNIRS2 = Get-Content $ERFDeployAppeNIRS2  | select-string "Deploy : 20 out of 20 tasks completed successfully" -Context 1
+ 
+If ($ContentERFeNIRS2.Line.Length -gt 0){
+    write-host "Success - ERF Count Matches Expected Results" -ForegroundColor Green
+    }
+ElseIf ($ContentERFeNIRS2.Line.Length -lt 1){
+    write-host "Failure - ERF Count doesn't match. Please Review" -ForegroundColor Red
+    exit
+}
+ 
+write-host 
+"ENIRS2 ENO Check" 
+ 
+cd e:\ENIRS2\Deploy\ENO*\
+./eNirs.Net.Deploy
+ 
+Add-Content $Output_Log "ENO eNIRS2" 
+Get-Content $ENODeployAppeNIRS2 | select-string "Deploy : 20 out of 20 tasks completed successfully" | Add-Content $Output_Log  
+ 
+$ContentENOeNIRS2 = Get-Content $ENODeployAppeNIRS2 | select-string "Deploy : 20 out of 20 tasks completed successfully" -Context 1
+ 
+If ($ContentENOeNIRS2.Line.Length -gt 0){
+    write-host "Success - ENO Count Matches Expected Results" -ForegroundColor Green
+    }
+ElseIf ($ContentENOeNIRS2.Line.Length -lt 1){
+    write-host "Failure - ENO Count doesn't match. Please Review" -ForegroundColor Red
+    exit
+}
+ElseIf ($EnvCheck2 -eq "n"){
+    write-host "Script Stopped" -ForegroundColor Red
+    exit 
+}
+Else {
+    write-host "Invalid Option. Exiting Script" -ForegroundColor Red
+    exit
+}
+ 
+cat $Output_Log 
+ 
+cd e:\AMS\ eNIRS_Deployment
+cd ../..
+}
